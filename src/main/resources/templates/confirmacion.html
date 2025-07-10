@@ -174,7 +174,7 @@
                 </div>
                 <div class="d-flex align-items-center">
                     <span class="me-3 fw-bold" th:text="'Hola, ' + ${reserva.usuario.nombre}"></span>
-                    <a th:href="@{/misreservas}" class="btn btn-outline-success me-2">
+                    <a th:href="@{/reserva/misreservas}" class="btn btn-outline-success me-2">
                         <i class="fas fa-calendar-alt me-1"></i> Mis Reservas
                     </a>
                     <a th:href="@{/logout}" class="btn btn-outline-secondary">
@@ -220,7 +220,7 @@
                     
                     <div class="detail-row">
                         <div class="detail-label">Duración:</div>
-                        <div class="detail-value" th:text="${#temporals.day(reserva.fechaHoraInicio, reserva.fechaHoraFin)} + ' horas'">2 horas</div>
+                        <div class="detail-value" th:text="${T(java.time.Duration).between(reserva.fechaHoraInicio, reserva.fechaHoraFin).toHours()} + ' horas'">2 horas</div>
                     </div>
                     
                     <div class="detail-row">
@@ -321,8 +321,9 @@
             const whatsappBtn = document.querySelector('.whatsapp-btn');
             const reservaId = document.querySelector('.detail-value').textContent;
             const whatsappMsg = `Hola, tengo una reserva en Peloteros con ID ${reservaId}. ¿Podrían confirmarme?`;
-            whatsappBtn.href = `https://wa.me/51987654321?text=${encodeURIComponent(whatsappMsg)}`;
+            whatsappBtn.href = `https://wa.me/51916389488?text=${encodeURIComponent(whatsappMsg)}`;
         });
     </script>
 </body>
 </html>
+

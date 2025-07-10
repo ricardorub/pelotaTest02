@@ -1,6 +1,14 @@
 
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -154,7 +162,8 @@
                 </div>
             </div>
             
-            <form th:action="@{/registro}" method="post" id="registerForm">
+            <form th:action="@{/usuario/home/registro}" method="post" id="registerForm">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <label for="nombre" class="form-label">Nombre Completo</label>
@@ -221,7 +230,7 @@
                 </div>
                 
                 <div class="login-link">
-                    ¿Ya tienes una cuenta? <a th:href="@{/login}">Inicia sesión aquí</a>
+                    ¿Ya tienes una cuenta? <a th:href="@{/usuario/login}">Inicia sesión aquí</a>
                 </div>
             </form>
         </div>
@@ -353,9 +362,36 @@
             
             // Validar formulario antes de enviar
             document.getElementById('registerForm').addEventListener('submit', function(e) {
+                const form = this;
+                
+                // Validar contraseña y términos
                 if (!isPasswordValid || !isPasswordMatch || !isTermsChecked) {
                     e.preventDefault();
-                    alert('Por favor completa todos los campos correctamente');
+                    e.stopPropagation();
+                }
+                
+                // Validar teléfono
+                const telefonoInput = document.getElementById('telefono');
+                const telefonoPattern = /^[0-9]{9}$/;
+                if (!telefonoPattern.test(telefonoInput.value)) {
+                    telefonoInput.setCustomValidity('El teléfono debe tener 9 dígitos');
+                } else {
+                    telefonoInput.setCustomValidity('');
+                }
+                
+                form.classList.add('was-validated');
+                
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+            
+            // Validar teléfono en tiempo real
+            document.getElementById('telefono').addEventListener('input', function() {
+                const telefonoPattern = /^[0-9]{0,9}$/;
+                if (!telefonoPattern.test(this.value)) {
+                    this.value = this.value.slice(0, -1);
                 }
             });
         });

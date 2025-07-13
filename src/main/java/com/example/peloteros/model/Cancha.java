@@ -15,9 +15,11 @@ public class Cancha {
     private String nombre;
     private String tipo; // F5, F7, F11
     private String ubicacion;
+    private String direccion;
     private double precioPorHora;
     private String descripcion;
     private String horarioApertura;  // New field for opening time
     private String horarioCierre;    // New field for closing time
     private String fotoUrl;
+    private String mapaUrl;
 }

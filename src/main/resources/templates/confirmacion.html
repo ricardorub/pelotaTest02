@@ -273,18 +273,11 @@
                     <h2 class="confirmation-title" style="font-size: 1.5rem;">¿Cómo llegar?</h2>
                 </div>
                 <div class="confirmation-body">
-                    <div id="map" style="height: 300px; background-color: #eee; border-radius: 5px; margin-bottom: 20px;">
-                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background-color:#e9ecef;">
-                            <div style="text-align:center;">
-                                <i class="fas fa-map-marked-alt" style="font-size:2rem;color:var(--primary-green);"></i>
-                                <p class="mt-2">Ubicación del complejo deportivo</p>
-                            </div>
-                        </div>
-                    </div>
+                    <img th:src="${reserva.cancha.mapaUrl}" alt="Mapa de la ubicación de la cancha" style="width: 100%; height: auto; border-radius: 5px; margin-bottom: 20px;">
                     <div class="row">
                         <div class="col-md-6">
                             <h5 class="fw-bold"><i class="fas fa-location-dot text-danger me-2"></i>Dirección</h5>
-                            <p>Av. Deportiva 123, Surco, Lima</p>
+                            <p th:text="${reserva.cancha.direccion}">Av. Deportiva 123, Surco, Lima</p>
                             
                             <h5 class="fw-bold mt-4"><i class="fas fa-clock text-primary me-2"></i>Horario de atención</h5>
                             <p>Lunes a Domingo: 8:00 am - 10:00 pm</p>
@@ -311,8 +304,6 @@
             // Aquí podrías generar un QR code real con librerías como QRCode.js
             // Ejemplo: new QRCode(document.getElementById("qr-code"), "https://peloteros.com/reserva/12345");
             
-            // Simulación de mapa (en una implementación real usarías Google Maps API)
-            const mapEl = document.getElementById('map');
             
             // Botón de WhatsApp con mensaje personalizado
             const whatsappBtn = document.querySelector('.whatsapp-btn');

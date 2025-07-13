@@ -46,6 +46,14 @@ public class ReservaService {
                 usuario, LocalDateTime.now(), "CANCELADA");
     }
 
+    public List<Reserva> obtenerReservasCompletadas(Usuario usuario) {
+        return reservaRepository.findByUsuarioAndEstado(usuario, "COMPLETADA");
+    }
+
+    public List<Reserva> obtenerReservasCompletadas(Usuario usuario) {
+        return reservaRepository.findByUsuarioAndEstado(usuario, "COMPLETADA");
+    }
+
     public List<Reserva> obtenerReservasCanceladasPorUsuario(Usuario usuario) {
         return reservaRepository.findByUsuarioAndEstado(usuario, "CANCELADA");
     }

@@ -1,478 +1,325 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva de Canchas - Intranet</title>
+    <title>Reservar Cancha - Peloteros</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #2e7d32;
-            --secondary-color: #81c784;
-            --light-color: #f1f8e9;
+            --primary-green: #2e7d32;
+            --secondary-green: #81c784;
+            --light-green: #f1f8e9;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem 0;
         }
-        
-        .navbar {
-            background-color: var(--primary-color);
-        }
-        
-        .card {
+
+        .reservation-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .reservation-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .reservation-header h2 {
+            color: var(--primary-green);
+            font-weight: bold;
+        }
+
+        .btn-reservar {
+            background-color: var(--primary-green);
             border: none;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: #1b5e20;
-            border-color: #1b5e20;
-        }
-        
-        .time-slot {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 8px 5px;
-            margin: 2px;
-            cursor: pointer;
+            padding: 0.75rem 2rem;
+            font-weight: 500;
             transition: all 0.3s;
-            font-size: 0.85rem;
-            text-align: center;
-            min-width: 60px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        
-        .time-slot:hover {
-            background-color: var(--light-color);
+
+        .btn-reservar:hover {
+            background-color: #1b5e20;
         }
-        
-        .time-slot.selected {
-            background-color: var(--secondary-color);
-            color: white;
-            font-weight: bold;
-        }
-        
-        .time-slot.booked {
-            background-color: #ffcdd2;
-            color: #c62828;
-            cursor: not-allowed;
-        }
-        
-        .modal-header {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .field-header {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            border-bottom: 1px solid #dee2e6;
-        }
-        
-        .schedule-container {
-            overflow-x: auto;
-            padding-bottom: 15px;
-        }
-        
-        .time-row {
-            display: flex;
-            min-width: max-content;
-        }
-        
-        .time-cell {
-            flex: 0 0 60px;
-        }
-        
-        .field-row {
-            display: flex;
-            margin-bottom: 10px;
-        }
-        
-        .field-name {
-            flex: 0 0 150px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            padding: 0 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px 0 0 5px;
-        }
-        
-        .field-slots {
-            display: flex;
-            overflow-x: auto;
-            padding: 5px;
-            background-color: white;
-            border-radius: 0 5px 5px 0;
-            border: 1px solid #dee2e6;
-        }
-        
-        .time-marker {
-            position: absolute;
-            top: 0;
-            height: 100%;
-            width: 1px;
-            background-color: rgba(0,0,0,0.1);
-            z-index: 1;
-        }
-        
-        .time-marker.hour {
-            background-color: rgba(0,0,0,0.3);
-        }
-        
-        .scroll-container {
-            position: relative;
+
+        .alert {
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <!-- Barra de navegación -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Fútbol Intranet</a>
-            <div class="d-flex align-items-center">
-                <span class="text-white me-3">Bienvenido, [NombreUsuario]</span>
-                <button class="btn btn-outline-light">Cerrar sesión</button>
-            </div>
-        </div>
-    </nav>
+    <div class="container">
+        <div class="reservation-container">
+            <div class="reservation-header">
+                <h2>Reservar Cancha</h2>
+                <p class="text-muted">Selecciona la cancha, fecha y horario para tu reserva</p>
 
-    <!-- Contenido principal -->
-    <div class="container py-4">
-        <div class="row">
-            <!-- Panel de usuario -->
-            <div class="col-md-3">
-                <div class="card">
-                    
-                    
+                <!-- Mensajes de error -->
+                <div th:if="${error != null}" class="alert alert-danger" th:text="${error}">
+                    Mensaje de error
                 </div>
-                
-                
             </div>
-            
-            <!-- Panel de reservas -->
-            <div class="col-md-9">
-                <div class="card">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Reservar cancha</h5>
-                        <div>
-                            <button class="btn btn-sm btn-outline-secondary me-2">Hoy</button>
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-primary"><</button>
-                                <button class="btn btn-sm btn-outline-primary disabled">15 Junio 2023</button>
-                                <button class="btn btn-sm btn-outline-primary">></button>
+
+            <form th:action="@{/reserva/reservar}" method="post" id="reservationForm" class="needs-validation" novalidate>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <!-- Sección de selección de cancha -->
+                <div class="mb-4">
+                    <h5 class="mb-3">1. Selecciona una cancha</h5>
+                    <div class="row" id="courtSelection">
+                        <div th:each="cancha : ${canchas}" class="col-md-6 mb-3">
+                            <div class="card h-100 court-card" 
+                                 th:data-id="${cancha.id}" 
+                                 th:data-price="${cancha.precioPorHora}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="card-title mb-0" th:text="${cancha.nombre}">Cancha</h5>
+                                        <span class="badge bg-success">
+                                            S/. <span th:text="${cancha.precioPorHora}">0</span>/hora
+                                        </span>
+                                    </div>
+                                    <p class="card-text text-muted small" th:text="${cancha.descripcion}">
+                                        Descripción de la cancha
+                                    </p>
+                                </div>
                             </div>
                         </div>
+                        <div th:if="${#lists.isEmpty(canchas)}" class="col-12">
+                            <div class="alert alert-warning">
+                                No hay canchas disponibles en este momento.
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="canchaId" name="canchaId" required>
+                    <div class="invalid-feedback">
+                        Por favor selecciona una cancha.
+                    </div>
+                </div>
+
+                <!-- Sección de selección de fecha -->
+                <div class="mb-4">
+                    <h5 class="mb-3">2. Selecciona la fecha</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="fecha" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="fecha" name="fecha" 
+                                   th:min="${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')}" 
+                                   required>
+                            <div class="invalid-feedback">
+                                Por favor selecciona una fecha válida.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de selección de horario -->
+                <div class="mb-4">
+                    <h5 class="mb-3">3. Selecciona el horario</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="horaInicio" class="form-label">Hora de inicio</label>
+                            <select class="form-select" id="horaInicio" name="horaInicio" required>
+                                <option value="" selected disabled>-- Selecciona --</option>
+                                <option th:each="hora : ${#numbers.sequence(7, 22)}" 
+                                        th:value="${hora < 10 ? '0' + hora + ':00' : hora + ':00'}"
+                                        th:text="${hora < 10 ? '0' + hora + ':00' : hora + ':00'}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Por favor selecciona una hora de inicio.
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="horaFin" class="form-label">Hora de fin</label>
+                            <select class="form-select" id="horaFin" name="horaFin" required disabled>
+                                <option value="" selected disabled>-- Primero selecciona la hora de inicio --</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Por favor selecciona una hora de fin.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="timeSlotsInfo" class="small text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Las reservas tienen una duración mínima de 1 hora y máxima de 4 horas.
+                    </div>
+                </div>
+
+                <!-- Resumen de la reserva -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Resumen de la reserva</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <input type="date" class="form-control" id="reservationDate">
-                            </div>
+                        <div class="row mb-2">
+                            <div class="col-6 text-muted">Cancha:</div>
+                            <div class="col-6 text-end" id="resumenCancha">-</div>
                         </div>
-                        
-                        <div class="schedule-container">
-                            <div class="scroll-container">
-                                <!-- Marcadores de hora completa -->
-                                <div style="position: relative; height: 0;">
-                                    <div class="time-marker hour" style="left: 0px;"></div> <!-- 8:00 -->
-                                    <div class="time-marker hour" style="left: 120px;"></div> <!-- 10:00 -->
-                                    <div class="time-marker hour" style="left: 240px;"></div> <!-- 12:00 -->
-                                    <div class="time-marker hour" style="left: 360px;"></div> <!-- 14:00 -->
-                                    <div class="time-marker hour" style="left: 480px;"></div> <!-- 16:00 -->
-                                    <div class="time-marker hour" style="left: 600px;"></div> <!-- 18:00 -->
-                                    <div class="time-marker hour" style="left: 720px;"></div> <!-- 20:00 -->
-                                    <div class="time-marker hour" style="left: 840px;"></div> <!-- 22:00 -->
-                                </div>
-                                
-                                <!-- Cancha 1 -->
-                                <div class="field-row mb-3">
-                                    <div class="field-name">Cancha #1 - F7</div>
-                                    <div class="field-slots">
-                                        <!-- Horas de 8:00 a 23:00 con intervalos de 30 minutos -->
-                                        <div class="time-slot">8:00</div>
-                                        <div class="time-slot">8:30</div>
-                                        <div class="time-slot">9:00</div>
-                                        <div class="time-slot">9:30</div>
-                                        <div class="time-slot">10:00</div>
-                                        <div class="time-slot">10:30</div>
-                                        <div class="time-slot">11:00</div>
-                                        <div class="time-slot">11:30</div>
-                                        <div class="time-slot selected">12:00</div>
-                                        <div class="time-slot">12:30</div>
-                                        <div class="time-slot">13:00</div>
-                                        <div class="time-slot">13:30</div>
-                                        <div class="time-slot">14:00</div>
-                                        <div class="time-slot">14:30</div>
-                                        <div class="time-slot booked">15:00</div>
-                                        <div class="time-slot booked">15:30</div>
-                                        <div class="time-slot booked">16:00</div>
-                                        <div class="time-slot booked">16:30</div>
-                                        <div class="time-slot">17:00</div>
-                                        <div class="time-slot">17:30</div>
-                                        <div class="time-slot">18:00</div>
-                                        <div class="time-slot">18:30</div>
-                                        <div class="time-slot">19:00</div>
-                                        <div class="time-slot">19:30</div>
-                                        <div class="time-slot">20:00</div>
-                                        <div class="time-slot">20:30</div>
-                                        <div class="time-slot">21:00</div>
-                                        <div class="time-slot">21:30</div>
-                                        <div class="time-slot">22:00</div>
-                                        <div class="time-slot">22:30</div>
-                                        <div class="time-slot">23:00</div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Cancha 2 -->
-                                <div class="field-row mb-3">
-                                    <div class="field-name">Cancha #2 - F11</div>
-                                    <div class="field-slots">
-                                        <div class="time-slot booked">8:00</div>
-                                        <div class="time-slot booked">8:30</div>
-                                        <div class="time-slot booked">9:00</div>
-                                        <div class="time-slot booked">9:30</div>
-                                        <div class="time-slot">10:00</div>
-                                        <div class="time-slot">10:30</div>
-                                        <div class="time-slot">11:00</div>
-                                        <div class="time-slot">11:30</div>
-                                        <div class="time-slot">12:00</div>
-                                        <div class="time-slot">12:30</div>
-                                        <div class="time-slot">13:00</div>
-                                        <div class="time-slot">13:30</div>
-                                        <div class="time-slot">14:00</div>
-                                        <div class="time-slot">14:30</div>
-                                        <div class="time-slot">15:00</div>
-                                        <div class="time-slot">15:30</div>
-                                        <div class="time-slot">16:00</div>
-                                        <div class="time-slot">16:30</div>
-                                        <div class="time-slot">17:00</div>
-                                        <div class="time-slot">17:30</div>
-                                        <div class="time-slot">18:00</div>
-                                        <div class="time-slot">18:30</div>
-                                        <div class="time-slot">19:00</div>
-                                        <div class="time-slot">19:30</div>
-                                        <div class="time-slot">20:00</div>
-                                        <div class="time-slot">20:30</div>
-                                        <div class="time-slot">21:00</div>
-                                        <div class="time-slot">21:30</div>
-                                        <div class="time-slot">22:00</div>
-                                        <div class="time-slot">22:30</div>
-                                        <div class="time-slot">23:00</div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Cancha 3 -->
-                                <div class="field-row mb-3">
-                                    <div class="field-name">Cancha #3 - F7</div>
-                                    <div class="field-slots">
-                                        <div class="time-slot">8:00</div>
-                                        <div class="time-slot">8:30</div>
-                                        <div class="time-slot">9:00</div>
-                                        <div class="time-slot">9:30</div>
-                                        <div class="time-slot booked">10:00</div>
-                                        <div class="time-slot booked">10:30</div>
-                                        <div class="time-slot booked">11:00</div>
-                                        <div class="time-slot booked">11:30</div>
-                                        <div class="time-slot">12:00</div>
-                                        <div class="time-slot">12:30</div>
-                                        <div class="time-slot">13:00</div>
-                                        <div class="time-slot">13:30</div>
-                                        <div class="time-slot">14:00</div>
-                                        <div class="time-slot">14:30</div>
-                                        <div class="time-slot">15:00</div>
-                                        <div class="time-slot">15:30</div>
-                                        <div class="time-slot">16:00</div>
-                                        <div class="time-slot">16:30</div>
-                                        <div class="time-slot">17:00</div>
-                                        <div class="time-slot">17:30</div>
-                                        <div class="time-slot">18:00</div>
-                                        <div class="time-slot">18:30</div>
-                                        <div class="time-slot">19:00</div>
-                                        <div class="time-slot">19:30</div>
-                                        <div class="time-slot">20:00</div>
-                                        <div class="time-slot">20:30</div>
-                                        <div class="time-slot">21:00</div>
-                                        <div class="time-slot">21:30</div>
-                                        <div class="time-slot">22:00</div>
-                                        <div class="time-slot">22:30</div>
-                                        <div class="time-slot">23:00</div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Cancha 4 -->
-                                <div class="field-row mb-3">
-                                    <div class="field-name">Cancha #4 - F5</div>
-                                    <div class="field-slots">
-                                        <div class="time-slot">8:00</div>
-                                        <div class="time-slot">8:30</div>
-                                        <div class="time-slot">9:00</div>
-                                        <div class="time-slot">9:30</div>
-                                        <div class="time-slot">10:00</div>
-                                        <div class="time-slot">10:30</div>
-                                        <div class="time-slot">11:00</div>
-                                        <div class="time-slot">11:30</div>
-                                        <div class="time-slot">12:00</div>
-                                        <div class="time-slot">12:30</div>
-                                        <div class="time-slot">13:00</div>
-                                        <div class="time-slot">13:30</div>
-                                        <div class="time-slot">14:00</div>
-                                        <div class="time-slot">14:30</div>
-                                        <div class="time-slot">15:00</div>
-                                        <div class="time-slot">15:30</div>
-                                        <div class="time-slot">16:00</div>
-                                        <div class="time-slot">16:30</div>
-                                        <div class="time-slot">17:00</div>
-                                        <div class="time-slot">17:30</div>
-                                        <div class="time-slot">18:00</div>
-                                        <div class="time-slot">18:30</div>
-                                        <div class="time-slot">19:00</div>
-                                        <div class="time-slot">19:30</div>
-                                        <div class="time-slot">20:00</div>
-                                        <div class="time-slot">20:30</div>
-                                        <div class="time-slot">21:00</div>
-                                        <div class="time-slot">21:30</div>
-                                        <div class="time-slot">22:00</div>
-                                        <div class="time-slot">22:30</div>
-                                        <div class="time-slot">23:00</div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="row mb-2">
+                            <div class="col-6 text-muted">Fecha:</div>
+                            <div class="col-6 text-end" id="resumenFecha">-</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6 text-muted">Horario:</div>
+                            <div class="col-6 text-end" id="resumenHorario">-</div>
+                        </div>
+                        <hr>
+                        <div class="row fw-bold">
+                            <div class="col-6">Total a pagar:</div>
+                            <div class="col-6 text-end text-success" id="resumenPrecio">S/. 0.00</div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-reservar text-white">
+                        <i class="fas fa-calendar-check me-2"></i>Reservar Ahora
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Modal de reserva -->
-    <div class="modal fade" id="reservationModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar reserva</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong id="fieldName">Cancha #1 - F7</strong></p>
-                    <p id="reservationDateText">Fecha: 15 de junio de 2023</p>
-                    <p id="reservationTime">Hora: 12:00</p>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Duración:</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="duration" id="duration30" value="30">
-                            <label class="form-check-label" for="duration30">
-                                30 minutos - S/ 90
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="duration" id="duration60" value="60" checked>
-                            <label class="form-check-label" for="duration60">
-                                60 minutos - S/ 180
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="duration" id="duration90" value="90">
-                            <label class="form-check-label" for="duration90">
-                                90 minutos - S/ 270
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="duration" id="duration120" value="120">
-                            <label class="form-check-label" for="duration120">
-                                120 minutos - S/ 360
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="paymentMethod" class="form-label">Método de pago:</label>
-                        <select class="form-select" id="paymentMethod">
-                            <option selected>Tarjeta de crédito</option>
-                            <option>Transferencia bancaria</option>
-                            <option>Yape/Plin</option>
-                            <option>Efectivo en cancha</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" id="continueButton">Continuar - S/ 180</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        // Mostrar modal al seleccionar un horario
         document.addEventListener('DOMContentLoaded', function() {
-            const timeSlots = document.querySelectorAll('.time-slot:not(.booked)');
-            const continueButton = document.getElementById('continueButton');
-            const pricePer30Min = 90;
-            
-            timeSlots.forEach(slot => {
-                slot.addEventListener('click', function() {
-                    // Quitar selección de otros slots
-                    timeSlots.forEach(s => s.classList.remove('selected'));
-                    // Seleccionar este slot
-                    this.classList.add('selected');
-                    
-                    // Obtener información de la cancha y hora
-                    const fieldRow = this.closest('.field-row');
-                    const fieldName = fieldRow.querySelector('.field-name').textContent;
-                    const time = this.textContent;
-                    
-                    // Actualizar modal con la información
-                    document.getElementById('fieldName').textContent = fieldName;
-                    document.getElementById('reservationTime').textContent = `Hora: ${time}`;
-                    
-                    // Mostrar modal
-                    const modal = new bootstrap.Modal(document.getElementById('reservationModal'));
-                    modal.show();
+            // Elementos del formulario
+            const form = document.getElementById('reservationForm');
+            const courtCards = document.querySelectorAll('.court-card');
+            const canchaIdInput = document.getElementById('canchaId');
+            const fechaInput = document.getElementById('fecha');
+            const horaInicioSelect = document.getElementById('horaInicio');
+            const horaFinSelect = document.getElementById('horaFin');
+
+            // Elementos del resumen
+            const resumenCancha = document.getElementById('resumenCancha');
+            const resumenFecha = document.getElementById('resumenFecha');
+            const resumenHorario = document.getElementById('resumenHorario');
+            const resumenPrecio = document.getElementById('resumenPrecio');
+
+            // Variables para almacenar la selección actual
+            let selectedCourt = null;
+            let precioPorHora = 0;
+
+            // 1. Manejar selección de cancha
+            courtCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Remover clase 'selected' de todas las tarjetas
+                    courtCards.forEach(c => c.classList.remove('border-success', 'border-2'));
+
+                    // Agregar clase 'selected' a la tarjeta clickeada
+                    this.classList.add('border-success', 'border-2');
+
+                    // Actualizar datos de la cancha seleccionada
+                    selectedCourt = this;
+                    canchaIdInput.value = this.dataset.id;
+                    precioPorHora = parseFloat(this.dataset.price);
+
+                    // Actualizar resumen
+                    updateResumen();
                 });
             });
-            
-            // Actualizar precio cuando cambia la duración
-            document.querySelectorAll('input[name="duration"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const duration = parseInt(this.value);
-                    const price = pricePer30Min * (duration / 30);
-                    continueButton.textContent = `Continuar - S/ ${price}`;
-                });
+
+            // 2. Manejar cambio de fecha
+            fechaInput.addEventListener('change', function() {
+                // Validar que la fecha no sea anterior a hoy
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (new Date(this.value) < today) {
+                    this.setCustomValidity('La fecha no puede ser anterior a hoy');
+                    this.reportValidity();
+                    this.value = '';
+                    return;
+                }
+
+                updateResumen();
             });
-            
-            // Actualizar fecha al cambiar el input
-            const dateInput = document.getElementById('reservationDate');
-            const dateText = document.getElementById('reservationDateText');
-            
-            dateInput.addEventListener('change', function() {
-                const selectedDate = new Date(this.value);
-                const options = { day: 'numeric', month: 'long', year: 'numeric' };
-                dateText.textContent = `Fecha: ${selectedDate.toLocaleDateString('es-ES', options)}`;
+
+            // 3. Manejar cambio de hora de inicio
+            horaInicioSelect.addEventListener('change', function() {
+                // Habilitar y actualizar opciones de hora de fin
+                horaFinSelect.innerHTML = '<option value="" selected disabled>-- Selecciona --</option>';
+                horaFinSelect.disabled = !this.value;
+
+                if (!this.value) return;
+
+                const horaInicio = parseInt(this.value.split(':')[0]);
+                const horaMaxFin = Math.min(horaInicio + 4, 23); // Máximo 4 horas
+
+                for (let h = horaInicio + 1; h <= horaMaxFin; h++) {
+                    const option = document.createElement('option');
+                    const horaStr = h < 10 ? '0' + h + ':00' : h + ':00';
+                    option.value = horaStr;
+                    option.textContent = horaStr;
+                    horaFinSelect.appendChild(option);
+                }
+
+                updateResumen();
             });
-            
-            // Establecer fecha actual por defecto
-            const today = new Date();
-            dateInput.valueAsDate = today;
-            dateText.textContent = `Fecha: ${today.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+            // 4. Manejar cambio de hora de fin
+            horaFinSelect.addEventListener('change', updateResumen);
+
+            // 5. Función para actualizar el resumen
+            function updateResumen() {
+                // Actualizar cancha
+                if (selectedCourt) {
+                    const nombreCancha = selectedCourt.querySelector('.card-title').textContent;
+                    resumenCancha.textContent = nombreCancha;
+                } else {
+                    resumenCancha.textContent = '-';
+                }
+
+                // Actualizar fecha
+                if (fechaInput.value) {
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const fecha = new Date(fechaInput.value);
+                    resumenFecha.textContent = fecha.toLocaleDateString('es-ES', options);
+                } else {
+                    resumenFecha.textContent = '-';
+                }
+
+                // Actualizar horario
+                if (horaInicioSelect.value && horaFinSelect.value) {
+                    resumenHorario.textContent = `${horaInicioSelect.value} - ${horaFinSelect.value}`;
+
+                    // Calcular y actualizar precio total
+                    const horas = parseInt(horaFinSelect.value.split(':')[0]) - parseInt(horaInicioSelect.value.split(':')[0]);
+                    const total = horas * precioPorHora;
+                    resumenPrecio.textContent = `S/. ${total.toFixed(2)}`;
+                } else if (horaInicioSelect.value) {
+                    resumenHorario.textContent = `${horaInicioSelect.value} - --:--`;
+                    resumenPrecio.textContent = 'S/. 0.00';
+                } else {
+                    resumenHorario.textContent = '-';
+                    resumenPrecio.textContent = 'S/. 0.00';
+                }
+            }
+
+            // 6. Validación del formulario antes de enviar
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                form.classList.add('was-validated');
+            });
         });
     </script>
 </body>
 </html>
+

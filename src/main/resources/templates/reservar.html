@@ -60,6 +60,11 @@
 <body>
     <div class="container">
         <div class="reservation-container">
+            <div class="d-flex justify-content-end">
+                <a th:href="@{/}" class="btn btn-outline-secondary mb-3">
+                    <i class="fas fa-sign-out-alt me-1"></i> Salir
+                </a>
+            </div>
             <div class="reservation-header">
                 <h2>Reservar Cancha</h2>
                 <p class="text-muted">Selecciona la cancha, fecha y horario para tu reserva</p>
@@ -67,6 +72,8 @@
                 <!-- Mensajes de error -->
                 <div th:if="${error != null}" class="alert alert-danger" th:text="${error}">
                     Mensaje de error
+                </div>
+                <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}">
                 </div>
             </div>
 
@@ -244,7 +251,8 @@
                     this.value = '';
                     return;
                 }
-
+                
+                updateHoraInicioOptions();
                 updateResumen();
             });
 
@@ -272,6 +280,65 @@
 
             // 4. Manejar cambio de hora de fin
             horaFinSelect.addEventListener('change', updateResumen);
+            
+            function updateHoraInicioOptions() {
+                const selectedDate = new Date(fechaInput.value + 'T00:00:00');
+                const today = new Date();
+                
+                const isToday = selectedDate.getUTCFullYear() === today.getUTCFullYear() &&
+                                selectedDate.getUTCMonth() === today.getUTCMonth() &&
+                                selectedDate.getUTCDate() === today.getUTCDate();
+
+                let currentHour = 0;
+                if (isToday) {
+                    currentHour = today.getHours();
+                }
+
+                if (selectedCourt && fechaInput.value) {
+                    fetch(`/reserva/booked-hours?canchaId=${canchaIdInput.value}&fecha=${fechaInput.value}`)
+                        .then(response => response.json())
+                        .then(bookedHours => {
+                            const horaInicioOptions = horaInicioSelect.options;
+                            for (let i = 0; i < horaInicioOptions.length; i++) {
+                                const option = horaInicioOptions[i];
+                                if (option.value) {
+                                    const optionHour = parseInt(option.value.split(':')[0]);
+                                    let isDisabled = false;
+                                    let disabledReason = '';
+
+                                    if (bookedHours.includes(optionHour)) {
+                                        isDisabled = true;
+                                        disabledReason = ' (No disponible)';
+                                    } else if (isToday && optionHour <= currentHour) {
+                                        isDisabled = true;
+                                        disabledReason = ' (Hora pasada)';
+                                    }
+
+                                    option.disabled = isDisabled;
+                                    option.textContent = `${option.value}${disabledReason}`;
+                                    option.style.backgroundColor = isDisabled ? '#f8d7da' : '';
+                                }
+                            }
+                        });
+                } else {
+                     const horaInicioOptions = horaInicioSelect.options;
+                    for (let i = 0; i < horaInicioOptions.length; i++) {
+                        const option = horaInicioOptions[i];
+                        if(option.value){
+                             const optionHour = parseInt(option.value.split(':')[0]);
+                             if (isToday && optionHour <= currentHour) {
+                                option.disabled = true;
+                                option.textContent = `${option.value} (Hora pasada)`;
+                                option.style.backgroundColor = '#f8d7da';
+                            } else {
+                                option.disabled = false;
+                                option.textContent = option.value;
+                                option.style.backgroundColor = '';
+                            }
+                        }
+                    }
+                }
+            }
 
             // 5. Función para actualizar el resumen
             function updateResumen() {
@@ -286,8 +353,9 @@
                 // Actualizar fecha
                 if (fechaInput.value) {
                     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                    const fecha = new Date(fechaInput.value);
-                    resumenFecha.textContent = fecha.toLocaleDateString('es-ES', options);
+                    // Use UTC date to avoid timezone issues with toLocaleDateString
+                    const fecha = new Date(fechaInput.value + 'T00:00:00');
+                    resumenFecha.textContent = fecha.toLocaleDateString('es-ES', { timeZone: 'UTC', ...options });
                 } else {
                     resumenFecha.textContent = '-';
                 }
@@ -318,11 +386,10 @@
 
                 form.classList.add('was-validated');
             });
+            
+            // Initial call to set up the hours correctly
+            updateHoraInicioOptions();
         });
     </script>
 </body>
 </html>
-
-
-
-

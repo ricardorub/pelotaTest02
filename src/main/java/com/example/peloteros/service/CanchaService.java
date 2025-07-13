@@ -49,4 +49,10 @@ public class CanchaService {
 
 
    
+    public void actualizarFoto(Long id, String fotoUrl) {
+        Cancha cancha = canchaRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Cancha no encontrada con ID: " + id));
+        cancha.setFotoUrl(fotoUrl);
+        canchaRepository.save(cancha);
+    }
 }

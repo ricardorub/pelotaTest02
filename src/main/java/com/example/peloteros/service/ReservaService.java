@@ -57,7 +57,7 @@ public class ReservaService {
     public boolean validarDisponibilidad(Cancha cancha, LocalDateTime fechaHoraInicio, LocalDateTime fechaHoraFin) {
         // Verificar si hay reservas que se superpongan con el horario solicitado
         List<Reserva> reservasExistentes = reservaRepository
-                .findByCanchaAndFechaHoraInicioLessThanEqualAndFechaHoraFinGreaterThanEqualAndEstadoNot(
+                .findByCanchaAndFechaHoraInicioLessThanAndFechaHoraFinGreaterThanAndEstadoNot(
                         cancha, fechaHoraFin, fechaHoraInicio, "CANCELADA");
         return reservasExistentes.isEmpty();
     }

@@ -29,11 +29,11 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             @Param("fechaHora") LocalDateTime fechaHora,
             @Param("estado") String estado);
 
-    @Query("SELECT r FROM Reserva r WHERE r.cancha = :cancha AND r.fechaHoraInicio <= :fechaHoraFin AND r.fechaHoraFin >= :fechaHoraInicio AND r.estado != :estado")
-    List<Reserva> findByCanchaAndFechaHoraInicioLessThanEqualAndFechaHoraFinGreaterThanEqualAndEstadoNot(
+    @Query("SELECT r FROM Reserva r WHERE r.cancha = :cancha AND r.fechaHoraInicio < :fechaHoraFin AND r.fechaHoraFin > :fechaHoraInicio AND r.estado != :estado")
+    List<Reserva> findByCanchaAndFechaHoraInicioLessThanAndFechaHoraFinGreaterThanAndEstadoNot(
             @Param("cancha") Cancha cancha,
-            @Param("fechaHoraInicio") LocalDateTime fechaHoraInicio,
             @Param("fechaHoraFin") LocalDateTime fechaHoraFin,
+            @Param("fechaHoraInicio") LocalDateTime fechaHoraInicio,
             @Param("estado") String estado);
 
          long countByFechaHoraInicioBetweenAndEstadoNot(LocalDateTime inicio, LocalDateTime fin, String estado);

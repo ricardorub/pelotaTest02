@@ -1,5 +1,7 @@
 
 
+
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -109,6 +111,11 @@ public class ReservaController {
         // Calcular duración en horas
         long horas = java.time.Duration.between(fechaHoraInicio, fechaHoraFin).toHours();
         double precioTotal = cancha.getPrecioPorHora() * horas;
+
+        if (!reservaService.validarDisponibilidad(cancha, fechaHoraInicio, fechaHoraFin)) {
+            redirectAttributes.addFlashAttribute("error", "La cancha ya está reservada en este horario.");
+            return "redirect:/reserva/reservar";
+        }
 
         Reserva reserva = new Reserva();
         reserva.setUsuario(usuario);

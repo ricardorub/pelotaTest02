@@ -242,6 +242,15 @@ public class AdminController {
         redirectAttributes.addFlashAttribute("success", "Horarios actualizados");
         return "redirect:/admin/canchas";
     }
+
+    @PostMapping("/canchas/{id}/foto")
+    public String actualizarFoto(@PathVariable Long id,
+                                 @RequestParam String fotoUrl,
+                                 RedirectAttributes redirectAttributes) {
+        canchaService.actualizarFoto(id, fotoUrl);
+        redirectAttributes.addFlashAttribute("success", "Foto actualizada exitosamente");
+        return "redirect:/admin/canchas";
+    }
     
 
     // 4. Historial de pagos

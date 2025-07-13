@@ -19,4 +19,5 @@ public class Cancha {
     private String descripcion;
     private String horarioApertura;  // New field for opening time
     private String horarioCierre;    // New field for closing time
+    private String fotoUrl;
 }

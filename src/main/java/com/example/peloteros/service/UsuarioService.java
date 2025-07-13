@@ -62,6 +62,9 @@ public class UsuarioService {
     public List<Usuario> getAllUsers() {
         return usuarioRepository.findAll();
     }
+    public Usuario getUserById(Long id) {
+    return usuarioRepository.findById(id).orElse(null);
+}
 
     public void deleteUser(Long userId) {
         // Before deleting a user, consider implications for related entities.
@@ -126,13 +129,17 @@ public class UsuarioService {
     }
 
     public void eliminarUsuario(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eliminarUsuario'");
+    if (!usuarioRepository.existsById(id)) {
+        throw new IllegalArgumentException("Usuario no encontrado con ID: " + id);
     }
+    usuarioRepository.deleteById(id);
+}
 
-    public void crearUsuario(Usuario usuario) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'crearUsuario'");
-    }
+public void crearUsuario(Usuario usuario) {
+    usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+    usuario.setRoles("ROLE_USER"); // Puedes ajustar si quieres permitir elegir
+    usuario.setActivo(true); // Si usas campo activo
+    usuarioRepository.save(usuario);
+}
 
 }

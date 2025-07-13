@@ -119,7 +119,7 @@ public class AdminController {
         try {
             Usuario usuario = usuarioService.obtenerUsuarioPorId(id);
             model.addAttribute("usuario", usuario);
-            return "admin/usuario-form";
+            return "admin/editar-usuario";
         } catch (Exception e) {
             model.addAttribute("error", "Usuario no encontrado");
             return "redirect:/admin/usuarios";

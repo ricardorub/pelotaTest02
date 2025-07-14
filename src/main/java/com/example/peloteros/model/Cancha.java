@@ -22,4 +22,8 @@ public class Cancha {
     private String horarioCierre;
     private String fotoUrl;
     private String mapaUrl;
+
+    public double getPrecioPorHora() {
+        return precioPorHora;
+    }
 }

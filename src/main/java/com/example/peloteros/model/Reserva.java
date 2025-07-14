@@ -31,4 +31,44 @@ public class Reserva {
     private double precioTotal;
     private String estado; // PENDIENTE, CONFIRMADA, CANCELADA
     private String comentarios; 
+
+    public void setFechaHoraInicio(LocalDateTime fechaHoraInicio) {
+        this.fechaHoraInicio = fechaHoraInicio;
+    }
+
+    public void setPrecioTotal(double precioTotal) {
+        this.precioTotal = precioTotal;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
+        this.fechaHoraFin = fechaHoraFin;
+    }
+
+    public LocalDateTime getFechaHoraInicio() {
+        return fechaHoraInicio;
+    }
+
+    public double getPrecioPorHora() {
+        return cancha.getPrecioPorHora();
+    }
+
+    public void setCancha(Cancha cancha) {
+        this.cancha = cancha;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 }

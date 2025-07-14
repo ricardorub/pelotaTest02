@@ -145,7 +145,7 @@
         <div class="container">
             <a class="navbar-brand" href="#">Fútbol Intranet</a>
             <div class="d-flex align-items-center">
-                <span class="text-white me-3">Bienvenido, [NombreUsuario]</span>
+<span class="text-white me-3">Bienvenido, <span th:text="${nombreUsuario}"></span></span>
                 <button class="btn btn-outline-light">Salir</button>
             </div>
         </div>
@@ -163,14 +163,10 @@
                         
                         <h6>Mis reservas</h6>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                jockey - 15/06
-                                <span class="badge bg-primary rounded-pill">12:00 - 13:30</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                campo de marte - 18/06
-                                <span class="badge bg-primary rounded-pill">16:30 - 18:00</span>
-                            </li>
+<li th:each="reserva : ${reservas}">
+    <span th:text="${reserva.cancha} + ' - ' + ${reserva.fecha}"></span>
+    <span class="badge bg-primary rounded-pill" th:text="${reserva.horaInicio} + ' - ' + ${reserva.horaFin}"></span>
+</li>
                         </ul>
                     </div>
                 </div>
@@ -196,7 +192,7 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <input type="date" class="form-control" id="reservationDate">
+<input type="date" class="form-control" id="reservationDate" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
                             </div>
                         </div>
                         
@@ -219,37 +215,9 @@
                                     <div class="field-name">Los Alamos</div>
                                     <div class="field-slots">
                                         <!-- Horas de 8:00 a 23:00 con intervalos de 30 minutos -->
-                                        <div class="time-slot">8:00</div>
-                                        <div class="time-slot">8:30</div>
-                                        <div class="time-slot">9:00</div>
-                                        <div class="time-slot">9:30</div>
-                                        <div class="time-slot">10:00</div>
-                                        <div class="time-slot">10:30</div>
-                                        <div class="time-slot">11:00</div>
-                                        <div class="time-slot">11:30</div>
-                                        <div class="time-slot selected">12:00</div>
-                                        <div class="time-slot">12:30</div>
-                                        <div class="time-slot">13:00</div>
-                                        <div class="time-slot">13:30</div>
-                                        <div class="time-slot">14:00</div>
-                                        <div class="time-slot">14:30</div>
-                                        <div class="time-slot booked">15:00</div>
-                                        <div class="time-slot booked">15:30</div>
-                                        <div class="time-slot booked">16:00</div>
-                                        <div class="time-slot booked">16:30</div>
-                                        <div class="time-slot">17:00</div>
-                                        <div class="time-slot">17:30</div>
-                                        <div class="time-slot">18:00</div>
-                                        <div class="time-slot">18:30</div>
-                                        <div class="time-slot">19:00</div>
-                                        <div class="time-slot">19:30</div>
-                                        <div class="time-slot">20:00</div>
-                                        <div class="time-slot">20:30</div>
-                                        <div class="time-slot">21:00</div>
-                                        <div class="time-slot">21:30</div>
-                                        <div class="time-slot">22:00</div>
-                                        <div class="time-slot">22:30</div>
-                                        <div class="time-slot">23:00</div>
+<div th:each="hora : ${horas}">
+    <div class="time-slot" th:classappend="${hora.disponible ? '' : 'booked'}" th:text="${hora.hora}" th:onclick="|selectTimeSlot('${hora.hora}', '${hora.disponible}')|"></div>
+</div>
                                     </div>
                                 </div>
                                 
@@ -455,8 +423,8 @@
                     const time = this.textContent;
                     
                     // Actualizar modal con la información
-                    document.getElementById('fieldName').textContent = fieldName;
-                    document.getElementById('reservationTime').textContent = `Hora: ${time}`;
+document.getElementById('fieldName').textContent = `${fieldName}`;
+document.getElementById('reservationTime').textContent = `Hora: ${time}`;
                     
                     // Mostrar modal
                     const modal = new bootstrap.Modal(document.getElementById('reservationModal'));

@@ -1,9 +1,4 @@
 
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.peloteros.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +18,14 @@ import com.example.peloteros.service.UsuarioService;
 import jakarta.servlet.http.HttpSession; // Keep for other methods for now
 import java.security.Principal;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes; // Added import
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Controller
 @RequestMapping("/reserva") // Changed back to /reserva
